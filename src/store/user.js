@@ -22,8 +22,8 @@ export default {
       commit('setLoading', true, { root: true })
       
       let isRequestOk = true
-      let promise = new Promise(function(resolve) {
-        setTimeout(() => resolve('Done'), 3000)
+      let promise = new Promise((resolve) => {
+        setTimeout(() => resolve('Done'), 2000)
       })
       
       if (isRequestOk) {
@@ -44,8 +44,8 @@ export default {
       commit('setLoading', true, { root: true })
       
       let isRequestOk = true
-      let promise = new Promise(function(resolve) {
-        setTimeout(() => resolve('Done'), 3000)
+      let promise = new Promise((resolve) => {
+        setTimeout(() => resolve('Done'), 2000)
       })
       
       if (isRequestOk) {
