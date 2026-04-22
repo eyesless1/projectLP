@@ -80,7 +80,14 @@ export default {
           email: this.email,
           password: this.password
         }
-        console.log(user)
+        this.$store.dispatch('registerUser', user)
+        console.log('User registered:', user)
+        // Очистка формы и переход на главную
+        this.email = ""
+        this.password = ""
+        this.confirmPassword = ""
+        this.$refs.form.reset()
+        this.$router.push("/")
       }
     }
   }
