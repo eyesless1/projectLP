@@ -14,8 +14,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn class="warning" color="orange">Edit</v-btn>
-            <v-btn class="success" color="green">Buy</v-btn>
+            <modal-dialog :ad="ad" v-if="isOwner"></modal-dialog>
+            <v-btn class="success">Buy</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -24,11 +24,19 @@
 </template>
 
 <script>
+import EditAdModal from './EditAdModal.vue'
+
 export default {
   props: ['id'],
+  components: {
+    'modal-dialog': EditAdModal
+  },
   computed: {
     ad() {
       return this.$store.getters.adById(this.id)
+    },
+    isOwner() {
+      return this.ad.userId === this.$store.getters.user?.id
     }
   }
 }
