@@ -5,7 +5,7 @@
         <h1 class="text--primary mb-5">My Orders</h1>
         
         <v-card
-          v-for="order in myOrders"
+          v-for="order in orders"
           :key="order.id"
           class="mb-3"
         >
@@ -42,7 +42,7 @@
         </v-card>
         
         <v-alert
-          v-if="myOrders.length === 0"
+          v-if="orders.length === 0"
           type="info"
           class="mt-5"
         >
@@ -56,8 +56,8 @@
 <script>
 export default {
   computed: {
-    myOrders() {
-      return this.$store.getters.userOrders || []
+    orders() {
+      return this.$store.getters.orders || []
     }
   }
 }

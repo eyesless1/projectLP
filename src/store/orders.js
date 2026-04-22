@@ -1,3 +1,14 @@
+class Order {
+  constructor(name, phone, adId, userId, done = false, id = null) {
+    this.name = name
+    this.phone = phone
+    this.adId = adId
+    this.userId = userId
+    this.done = done
+    this.id = id
+  }
+}
+
 export default {
   state: {
     orders: []
@@ -8,40 +19,33 @@ export default {
     }
   },
   actions: {
-    createOrder({ commit }, { name, phone, adId, userId }) {
-      console.log('Order created:', { name, phone, adId, userId })
+    async createOrder({ commit }, { name, phone, adId, userId }) {
+      let payload = new Order(name, phone, adId, userId, false, Math.random())
       
       commit('clearError', null, { root: true })
       
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          try {
-            commit('createOrder', {
-              id: Math.random(),
-              name,
-              phone,
-              adId,
-              userId,
-              done: false
-            })
-            resolve()
-          } catch (error) {
-            reject(error)
-          }
-        }, 3000)
+      // Имитация запроса к серверу
+      let isRequestOk = true
+      let promise = new Promise(function(resolve) {
+        setTimeout(() => resolve('Done'), 3000)
       })
+      
+      if (isRequestOk) {
+        await promise.then(() => {
+          commit('createOrder', payload)
+        })
+      } else {
+        await promise.then(() => {
+          commit('setError', 'Ошибка создания заказа', { root: true })
+          throw new Error('Упс... Ошибка создания заказа')
+        })
+      }
     }
   },
   getters: {
-    // Все заказы
-    orders(state) {
-      return state.orders
-    },
-    // Заказы текущего пользователя
-    userOrders(state, getters) {
-      const currentUser = getters.user
-      if (!currentUser || !currentUser.id) return []
-      return state.orders.filter(order => order.userId == currentUser.id)
+    orders(state, getters) {
+      if (getters.user == null) return []
+      return state.orders.filter(order => order.userId == getters.user.id)
     }
   }
 }
