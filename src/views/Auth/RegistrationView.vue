@@ -7,6 +7,14 @@
             <v-toolbar-title>Registration</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
+            <v-alert
+              v-if="error"
+              type="error"
+              dismissible
+              class="mb-3"
+            >
+              {{ error }}
+            </v-alert>
             <v-form v-model="valid" ref="form" lazy-validation>
               <v-text-field
                 prepend-icon="mdi-account"
@@ -40,7 +48,8 @@
             <v-btn
               color="primary"
               @click="onSubmit"
-              :disabled="!valid"
+              :loading="loading"
+              :disabled="!valid || loading"
             >
               Create Account
             </v-btn>
@@ -73,6 +82,14 @@ export default {
       ]
     }
   },
+  computed: {
+    loading() {
+      return this.$store.getters.loading
+    },
+    error() {
+      return this.$store.getters.error
+    }
+  },
   methods: {
     onSubmit() {
       if (this.$refs.form.validate()) {
@@ -81,13 +98,12 @@ export default {
           password: this.password
         }
         this.$store.dispatch('registerUser', user)
-        console.log('User registered:', user)
-        // Очистка формы и переход на главную
-        this.email = ""
-        this.password = ""
-        this.confirmPassword = ""
-        this.$refs.form.reset()
-        this.$router.push("/")
+          .then(() => {
+            this.$router.push("/")
+          })
+          .catch((err) => {
+            console.log(err.message)
+          })
       }
     }
   }
