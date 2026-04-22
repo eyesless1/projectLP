@@ -72,21 +72,24 @@ export default {
       this.phone = ""
       this.modal = false
     },
-    onSave() {
+    async onSave() {
       if (this.name !== '' && this.phone !== '') {
         this.localLoading = true
-        this.$store.dispatch('createOrder', {
-          name: this.name,
-          phone: this.phone,
-          adId: this.ad.id,
-          userId: this.ad.userId
-        })
-        .finally(() => {
+        try {
+          await this.$store.dispatch('createOrder', {
+            name: this.name,
+            phone: this.phone,
+            adId: this.ad.id,
+            userId: this.ad.userId
+          })
+        } catch (error) {
+          console.log(error)
+        } finally {
           this.localLoading = false
           this.name = ""
           this.phone = ""
           this.modal = false
-        })
+        }
       }
     }
   }
