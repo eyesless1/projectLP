@@ -7,7 +7,15 @@
             <v-toolbar-title>Login</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-form v-model="valid" ref="form" validation>
+            <v-alert
+              v-if="error"
+              type="error"
+              dismissible
+              class="mb-3"
+            >
+              {{ error }}
+            </v-alert>
+            <v-form v-model="valid" ref="form" lazy-validation>
               <v-text-field
                 prepend-icon="mdi-account"
                 name="email"
@@ -32,7 +40,8 @@
             <v-btn
               color="primary"
               @click="onSubmit"
-              :disabled="!valid"
+              :loading="loading"
+              :disabled="!valid || loading"
             >
               Login
             </v-btn>
@@ -45,7 +54,7 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       email: "",
       password: "",
@@ -60,14 +69,28 @@ export default {
       ]
     }
   },
+  computed: {
+    loading() {
+      return this.$store.getters.loading
+    },
+    error() {
+      return this.$store.getters.error
+    }
+  },
   methods: {
-    onSubmit(){
-      if (this.$refs.form.validate()){
+    onSubmit() {
+      if (this.$refs.form.validate()) {
         const user = {
           email: this.email,
           password: this.password
         }
-        console.log(user)
+        this.$store.dispatch('loginUser', user)
+          .then(() => {
+            this.$router.push("/")
+          })
+          .catch((err) => {
+            console.log(err.message)
+          })
       }
     }
   }
