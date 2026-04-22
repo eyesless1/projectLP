@@ -3,7 +3,17 @@
     <v-row>
       <v-col cols="8" offset="2">
         <h1 class="text--secondary mb-3 mt-3">Create Ad</h1>
-        <v-form v-model="valid" ref="form" validation>
+        
+        <v-alert
+          v-if="error"
+          type="error"
+          dismissible
+          class="mb-3"
+        >
+          {{ error }}
+        </v-alert>
+        
+        <v-form v-model="valid" ref="form" lazy-validation>
           <v-text-field
             name="title"
             label="Ad Title"
@@ -52,6 +62,8 @@
             <v-btn
               color="success"
               @click="createAd"
+              :loading="loading"
+              :disabled="!valid || loading"
             >Create Ad</v-btn>
           </v-flex>
         </v-layout>
@@ -70,6 +82,14 @@ export default {
       promo: false
     }
   },
+  computed: {
+    loading() {
+      return this.$store.getters.loading
+    },
+    error() {
+      return this.$store.getters.error
+    }
+  },
   methods: {
     createAd() {
       if (this.$refs.form.validate()) {
@@ -80,13 +100,12 @@ export default {
           src: "https://cdn.vuetifyjs.com/images/cards/cooking.png"
         }
         this.$store.dispatch("createAd", ad)
-        // Очистка формы после создания
-        this.title = ""
-        this.description = ""
-        this.promo = false
-        this.$refs.form.reset()
-        // Переход на главную
-        this.$router.push("/")
+          .then(() => {
+            this.$router.push("/list")
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       }
     }
   }

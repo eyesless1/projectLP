@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12" sm="6" md="4" lg="3" v-for="ad in myAds" :key="ad.id">
+      <v-col cols="12" sm="6" md="4" lg="3" v-for="ad in ads" :key="ad.id">
         <v-card class="elevation-10 mb-5">
           <v-img :src="ad.src" height="200px"></v-img>
           <v-card-title>
@@ -23,7 +23,7 @@
 <script>
 export default {
   computed: {
-    myAds() {
+    ads() {
       return this.$store.getters.myAds
     }
   }
