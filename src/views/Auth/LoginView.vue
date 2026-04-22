@@ -7,14 +7,6 @@
             <v-toolbar-title>Login</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
-            <v-alert
-              v-if="error"
-              type="error"
-              dismissible
-              class="mb-3"
-            >
-              {{ error }}
-            </v-alert>
             <v-form v-model="valid" ref="form" lazy-validation>
               <v-text-field
                 prepend-icon="mdi-account"
@@ -86,7 +78,7 @@ export default {
         }
         this.$store.dispatch('loginUser', user)
           .then(() => {
-            this.$router.push("/")
+            this.$router.push('/')
           })
           .catch((err) => {
             console.log(err.message)

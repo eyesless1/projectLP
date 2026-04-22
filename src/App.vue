@@ -1,97 +1,135 @@
 <template>
-  <v-container>
-    <v-row justify="center">
-      <v-col cols="12" sm="8" lg="6">
-        <v-card class="elevation-12">
-          <v-toolbar dark color="primary">
-            <v-toolbar-title>Login</v-toolbar-title>
-          </v-toolbar>
-          <v-card-text>
-            <v-alert
-              v-if="error"
-              type="error"
-              dismissible
-              class="mb-3"
-            >
-              {{ error }}
-            </v-alert>
-            <v-form v-model="valid" ref="form" lazy-validation>
-              <v-text-field
-                prepend-icon="mdi-account"
-                name="email"
-                label="Email"
-                type="email"
-                v-model="email"
-                :rules="emailRules"
-              >
-              </v-text-field>
-              <v-text-field
-                prepend-icon="mdi-lock"
-                name="password"
-                label="Password"
-                type="password"
-                v-model="password"
-                :rules="passwordRules"
-              ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              @click="onSubmit"
-              :loading="loading"
-              :disabled="!valid || loading"
-            >
-              Login
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-app>
+    <v-navigation-drawer app v-model="drawer">
+      <v-list-item>
+        <v-list-item-content>
+          <v-list-item-title class="title">
+            КИПУ
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            Учебный проект
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list dense>
+        <v-list-item
+          v-for="link in links"
+          :key="link.title"
+          :to="link.url"
+        >
+          <template v-slot:prepend>
+            <v-icon :icon="link.icon"></v-icon>
+          </template>
+          <v-list-item-title>{{ link.title }}</v-list-item-title>
+        </v-list-item>
+        <v-list-item
+          @click="onLogout"
+          v-if="isUserLoggedIn"
+        >
+          <template v-slot:prepend>
+            <v-icon icon="mdi-exit-to-app"></v-icon>
+          </template>
+          <v-list-item-title>Logout</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-app-bar app dark color="primary">
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>
+        <v-btn to="/">Home</v-btn>
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-toolbar-items class="hidden-sm-and-down">
+        <v-btn
+          v-for="link in links"
+          :key="link.title"
+          :to="link.url"
+        >
+          <v-icon start :icon="link.icon"></v-icon>
+          {{ link.title }}
+        </v-btn>
+        <v-btn
+          @click="onLogout"
+          v-if="isUserLoggedIn"
+        >
+          <v-icon start icon="mdi-exit-to-app"></v-icon>
+          Logout
+        </v-btn>
+      </v-toolbar-items>
+    </v-app-bar>
+
+    <v-main>
+      <router-view></router-view>
+    </v-main>
+
+    <v-snackbar
+      v-model="snackbar"
+      multi-line
+      :timeout="2000"
+      color="error"
+    >
+      {{ error }}
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="closeError"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
+  </v-app>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      email: "",
-      password: "",
-      valid: false,
-      emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+\..+/.test(v) || 'E-mail must be valid'
-      ],
-      passwordRules: [
-        v => !!v || 'Password is required',
-        v => (v && v.length >= 6) || 'Password must be more or equal than 6 characters'
-      ]
+      drawer: false,
+      snackbar: false
     }
   },
   computed: {
-    loading() {
-      return this.$store.getters.loading
+    isUserLoggedIn() {
+      return this.$store.getters.isUserLoggedIn
     },
     error() {
       return this.$store.getters.error
+    },
+    links() {
+      if (this.isUserLoggedIn) {
+        return [
+          { title: "Orders", icon: "mdi-bookmark-multiple-outline", url: "/orders" },
+          { title: "New ad", icon: "mdi-note-plus-outline", url: "/new" },
+          { title: "My ads", icon: "mdi-view-list-outline", url: "/list" }
+        ]
+      } else {
+        return [
+          { title: "Login", icon: "mdi-lock", url: "/login" },
+          { title: "Registration", icon: "mdi-face", url: "/registration" }
+        ]
+      }
+    }
+  },
+  watch: {
+    error(newVal) {
+      if (newVal) {
+        this.snackbar = true
+      }
     }
   },
   methods: {
-    onSubmit() {
-      if (this.$refs.form.validate()) {
-        const user = {
-          email: this.email,
-          password: this.password
-        }
-        this.$store.dispatch('loginUser', user)
-          .then(() => {
-            this.$router.push("/")
-          })
-          .catch((err) => {
-            console.log(err.message)
-          })
-      }
+    closeError() {
+      this.$store.dispatch('clearError')
+      this.snackbar = false
+    },
+    onLogout() {
+      this.$store.dispatch('logoutUser')
+      this.$router.push("/")
     }
   }
 }
